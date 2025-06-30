@@ -23,7 +23,7 @@ export class FavoritesService {
       const data = await fs.readFile(this.favoritesPath, 'utf-8')
       const favoritesArray = JSON.parse(data) as FavoriteItem[]
       this.favorites.clear()
-      favoritesArray.forEach(fav => {
+      favoritesArray.forEach((fav) => {
         const key = this.getKey(fav.championKey, fav.skinId)
         this.favorites.set(key, {
           ...fav,
@@ -31,6 +31,7 @@ export class FavoritesService {
         })
       })
     } catch (error) {
+      console.error('Error initializing favorites:', error)
       // File doesn't exist yet, that's fine
       this.favorites.clear()
     }
@@ -63,8 +64,8 @@ export class FavoritesService {
   }
 
   getFavorites(): FavoriteItem[] {
-    return Array.from(this.favorites.values()).sort((a, b) => 
-      b.addedAt.getTime() - a.addedAt.getTime()
+    return Array.from(this.favorites.values()).sort(
+      (a, b) => b.addedAt.getTime() - a.addedAt.getTime()
     )
   }
 

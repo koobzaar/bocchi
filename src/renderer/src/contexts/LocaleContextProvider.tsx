@@ -1,22 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import React, { useState, useEffect, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LanguageCode, supportedLanguages } from '../i18n'
-
-interface LocaleContextType {
-  currentLanguage: LanguageCode
-  setLanguage: (lang: LanguageCode) => Promise<void>
-  languages: typeof supportedLanguages
-}
-
-const LocaleContext = createContext<LocaleContextType | null>(null)
-
-export const useLocale = () => {
-  const context = useContext(LocaleContext)
-  if (!context) {
-    throw new Error('useLocale must be used within LocaleProvider')
-  }
-  return context
-}
+import { LocaleContext } from './LocaleContext'
 
 interface LocaleProviderProps {
   children: ReactNode
@@ -30,13 +15,13 @@ export const LocaleProvider: React.FC<LocaleProviderProps> = ({ children }) => {
   useEffect(() => {
     const loadSavedLanguage = async () => {
       const savedLang = await window.api.getSettings?.('language')
-      if (savedLang && supportedLanguages.some(lang => lang.code === savedLang)) {
+      if (savedLang && supportedLanguages.some((lang) => lang.code === savedLang)) {
         setCurrentLanguage(savedLang as LanguageCode)
         await i18n.changeLanguage(savedLang)
       } else {
         // Try to detect system language
         const systemLang = navigator.language.replace('-', '_')
-        const matchedLang = supportedLanguages.find(lang => 
+        const matchedLang = supportedLanguages.find((lang) =>
           lang.code.startsWith(systemLang.split('_')[0])
         )
         if (matchedLang) {
@@ -45,7 +30,7 @@ export const LocaleProvider: React.FC<LocaleProviderProps> = ({ children }) => {
         }
       }
     }
-    
+
     loadSavedLanguage()
   }, [i18n])
 
@@ -56,11 +41,11 @@ export const LocaleProvider: React.FC<LocaleProviderProps> = ({ children }) => {
   }
 
   return (
-    <LocaleContext.Provider 
-      value={{ 
-        currentLanguage, 
-        setLanguage, 
-        languages: supportedLanguages 
+    <LocaleContext.Provider
+      value={{
+        currentLanguage,
+        setLanguage,
+        languages: supportedLanguages
       }}
     >
       {children}

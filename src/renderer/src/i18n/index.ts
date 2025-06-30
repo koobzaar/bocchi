@@ -8,7 +8,7 @@ export const supportedLanguages = [
   { code: 'vi_VN', name: 'Tiếng Việt', flag: '🇻🇳' }
 ] as const
 
-export type LanguageCode = typeof supportedLanguages[number]['code']
+export type LanguageCode = (typeof supportedLanguages)[number]['code']
 
 const resources = {
   en_US: {
@@ -20,21 +20,19 @@ const resources = {
 }
 
 // Initialize i18n
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: 'en_US',
-    fallbackLng: 'en_US',
-    debug: false,
-    
-    interpolation: {
-      escapeValue: false
-    },
-    
-    react: {
-      useSuspense: false
-    }
-  })
+i18n.use(initReactI18next).init({
+  resources,
+  lng: 'en_US',
+  fallbackLng: 'en_US',
+  debug: false,
+
+  interpolation: {
+    escapeValue: false
+  },
+
+  react: {
+    useSuspense: false
+  }
+})
 
 export default i18n

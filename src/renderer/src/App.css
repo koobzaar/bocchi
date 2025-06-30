@@ -14,7 +14,6 @@ body {
   overflow: hidden;
 }
 
-
 .btn {
   padding: 10px 20px;
   border: none;
@@ -60,7 +59,6 @@ body {
   color: #0a0e1a;
 }
 
-
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
@@ -81,27 +79,36 @@ body {
 
 /* Loading animation */
 .loading::after {
-  content: "...";
+  content: '...';
   animation: dots 1.5s steps(5, end) infinite;
 }
 
 @keyframes dots {
-  0%, 20% {
-      color: rgba(0, 0, 0, 0);
-      text-shadow: .25em 0 0 rgba(0, 0, 0, 0), .5em 0 0 rgba(0, 0, 0, 0);
+  0%,
+  20% {
+    color: rgba(0, 0, 0, 0);
+    text-shadow:
+      0.25em 0 0 rgba(0, 0, 0, 0),
+      0.5em 0 0 rgba(0, 0, 0, 0);
   }
   40% {
-      color: white;
-      text-shadow: .25em 0 0 rgba(0, 0, 0, 0), .5em 0 0 rgba(0, 0, 0, 0);
+    color: white;
+    text-shadow:
+      0.25em 0 0 rgba(0, 0, 0, 0),
+      0.5em 0 0 rgba(0, 0, 0, 0);
   }
   60% {
-      text-shadow: .25em 0 0 white, .5em 0 0 rgba(0, 0, 0, 0);
+    text-shadow:
+      0.25em 0 0 white,
+      0.5em 0 0 rgba(0, 0, 0, 0);
   }
-  80%, 100% {
-      text-shadow: .25em 0 0 white, .5em 0 0 white;
+  80%,
+  100% {
+    text-shadow:
+      0.25em 0 0 white,
+      0.5em 0 0 white;
   }
 }
-
 
 /* Champion Browser Styles */
 .champion-browser {
@@ -411,7 +418,6 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 
 .chroma-selector {
   position: absolute;

@@ -112,7 +112,7 @@ function setupIpcHandlers(): void {
       properties: ['openDirectory'],
       title: 'Select League of Legends Game folder'
     })
-    
+
     if (!result.canceled && result.filePaths.length > 0) {
       return { success: true, gamePath: result.filePaths[0] }
     }
@@ -161,7 +161,7 @@ function setupIpcHandlers(): void {
         createdAt: new Date(),
         updatedAt: new Date()
       }
-      
+
       const result = await modToolsWrapper.applyPreset(preset)
       return result
     } catch (error) {
@@ -200,7 +200,7 @@ function setupIpcHandlers(): void {
 
   ipcMain.handle('load-champion-data', async (_, language?: string) => {
     try {
-      const currentLang = language || await settingsService.get('language') || 'en_US'
+      const currentLang = language || (await settingsService.get('language')) || 'en_US'
       const data = await championDataService.loadChampionData(currentLang)
       return { success: true, data }
     } catch (error) {
@@ -210,7 +210,7 @@ function setupIpcHandlers(): void {
 
   ipcMain.handle('check-champion-updates', async (_, language?: string) => {
     try {
-      const currentLang = language || await settingsService.get('language') || 'en_US'
+      const currentLang = language || (await settingsService.get('language')) || 'en_US'
       const needsUpdate = await championDataService.checkForUpdates(currentLang)
       return { success: true, needsUpdate }
     } catch (error) {
@@ -219,14 +219,17 @@ function setupIpcHandlers(): void {
   })
 
   // Favorites management
-  ipcMain.handle('add-favorite', async (_, championKey: string, skinId: string, skinName: string) => {
-    try {
-      await favoritesService.addFavorite(championKey, skinId, skinName)
-      return { success: true }
-    } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  ipcMain.handle(
+    'add-favorite',
+    async (_, championKey: string, skinId: string, skinName: string) => {
+      try {
+        await favoritesService.addFavorite(championKey, skinId, skinName)
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+      }
     }
-  })
+  )
 
   ipcMain.handle('remove-favorite', async (_, championKey: string, skinId: string) => {
     try {

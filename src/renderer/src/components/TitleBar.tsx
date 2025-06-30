@@ -10,9 +10,9 @@ export function TitleBar() {
       const maximized = await window.api.isWindowMaximized()
       setIsMaximized(maximized)
     }
-    
+
     checkMaximized()
-    
+
     // Check when window state changes
     const interval = setInterval(checkMaximized, 100)
     return () => clearInterval(interval)
@@ -39,11 +39,7 @@ export function TitleBar() {
         <LanguageSwitcher />
       </div>
       <div className="titlebar-controls">
-        <button
-          className="titlebar-button minimize"
-          onClick={handleMinimize}
-          aria-label="Minimize"
-        >
+        <button className="titlebar-button minimize" onClick={handleMinimize} aria-label="Minimize">
           <div className="titlebar-button-icon"></div>
         </button>
         <button
@@ -53,11 +49,7 @@ export function TitleBar() {
         >
           <div className="titlebar-button-icon"></div>
         </button>
-        <button
-          className="titlebar-button close"
-          onClick={handleClose}
-          aria-label="Close"
-        >
+        <button className="titlebar-button close" onClick={handleClose} aria-label="Close">
           <div className="titlebar-button-icon"></div>
         </button>
       </div>
