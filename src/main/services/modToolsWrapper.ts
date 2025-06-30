@@ -2,7 +2,7 @@ import { spawn, ChildProcess } from 'child_process';
 import path from 'path';
 import fs from 'fs/promises';
 import { app } from 'electron';
-import { Preset, ModInfo } from '../types';
+import { Preset } from '../types';
 import { ToolsDownloader } from './toolsDownloader';
 
 export class ModToolsWrapper {

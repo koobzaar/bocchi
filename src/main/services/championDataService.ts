@@ -59,7 +59,7 @@ export class ChampionDataService {
       const champions: Champion[] = [];
 
       // Fetch detailed data for each champion
-      for (const [champId, champBasicInfo] of Object.entries(championsData)) {
+      for (const [champId, champBasicInfo] of Object.entries(championsData) as [string, any][]) {
         try {
           const champDetails = await this.getChampionDetails(champId, language);
           

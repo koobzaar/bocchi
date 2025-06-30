@@ -3,13 +3,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import { createWriteStream } from 'fs';
 import { pipeline } from 'stream/promises';
-import { exec } from 'child_process';
-import { promisify } from 'util';
 import AdmZip from 'adm-zip';
 import { app } from 'electron';
 import { SkinInfo } from '../types';
-
-const execAsync = promisify(exec);
 
 export class SkinDownloader {
   private cacheDir: string;

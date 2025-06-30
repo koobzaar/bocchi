@@ -22,12 +22,6 @@ interface Skin {
   chromas: boolean
 }
 
-interface ChromaInfo {
-  id: string
-  name: string
-  colors?: string[]
-}
-
 interface ChampionData {
   version: string
   lastUpdated: string
@@ -57,7 +51,6 @@ function AppContent(): React.JSX.Element {
   const [selectedSkinId, setSelectedSkinId] = useState<string | null>(null)
   const [downloadedSkins, setDownloadedSkins] = useState<DownloadedSkin[]>([])
   const [selectedChromaId, setSelectedChromaId] = useState<string | null>(null)
-  const [hoveredChroma, setHoveredChroma] = useState<{ skinId: string; chromaId: string } | null>(null)
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [showFavoritesOnly, setShowFavoritesOnly] = useState<boolean>(false)
   const [toolsExist, setToolsExist] = useState<boolean | null>(null)
@@ -323,38 +316,6 @@ function AppContent(): React.JSX.Element {
     const championKey = champion.key
     return `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${championKey}_${skinNum}.jpg`
   }
-  
-  // Generate chroma options for skins that have them
-  const getChromaOptions = (skin: Skin): ChromaInfo[] => {
-    // For now, we'll generate some example chromas based on the skin ID
-    // In a real implementation, you might want to fetch this data from an API
-    const chromaIds = [
-      { id: '238024', name: 'Ruby' },
-      { id: '238025', name: 'Catseye' },
-      { id: '238026', name: 'Obsidian' },
-      { id: '238027', name: 'Pearl' },
-      { id: '238028', name: 'Rose Quartz' },
-      { id: '238029', name: 'Sapphire' },
-      { id: '238030', name: 'Turquoise' },
-      { id: '238031', name: 'Emerald' },
-    ]
-    return chromaIds
-  }
-  
-  // Get color for chroma display
-  const getChromaColor = (chromaName: string): string => {
-    const colorMap: { [key: string]: string } = {
-      'Ruby': '#e74c3c',
-      'Catseye': '#f39c12',
-      'Obsidian': '#2c3e50',
-      'Pearl': '#ecf0f1',
-      'Rose Quartz': '#e8b4bc',
-      'Sapphire': '#3498db',
-      'Turquoise': '#1abc9c',
-      'Emerald': '#27ae60',
-    }
-    return colorMap[chromaName] || '#95a5a6'
-  }
 
   return (
     <>
@@ -494,7 +455,7 @@ function AppContent(): React.JSX.Element {
                 <div className="skin-grid">
                   {isSearchingGlobally ? (
                     // Show global search results
-                    getFilteredSkins().map(({ champion, skin }) => {
+                    (getFilteredSkins() as Array<{ champion: Champion; skin: Skin }>).map(({ champion, skin }) => {
                     const skinFileName = `${skin.name}.zip`
                     const isDownloaded = downloadedSkins.some(
                       ds => ds.championName === champion.key && ds.skinName === skinFileName
@@ -545,20 +506,20 @@ function AppContent(): React.JSX.Element {
                     })
                   ) : (
                     // Show skins for selected champion
-                    selectedChampion.skins
+                    (selectedChampion?.skins || [])
                       .filter(skin => {
                         // Filter out default skins (skin.num === 0)
                         if (skin.num === 0) return false
                         if (!showFavoritesOnly) return true
-                        const key = `${selectedChampion.key}_${skin.id}`
+                        const key = `${selectedChampion?.key}_${skin.id}`
                         return favorites.has(key)
                       })
                       .map((skin) => {
                       const skinFileName = `${skin.name}.zip`
                       const isDownloaded = downloadedSkins.some(
-                        ds => ds.championName === selectedChampion.key && ds.skinName === skinFileName
+                        ds => ds.championName === selectedChampion?.key && ds.skinName === skinFileName
                       )
-                      const isFavorite = favorites.has(`${selectedChampion.key}_${skin.id}`)
+                      const isFavorite = favorites.has(`${selectedChampion?.key}_${skin.id}`)
                       
                       return (
                         <div 
@@ -567,10 +528,10 @@ function AppContent(): React.JSX.Element {
                         >
                           <div className="skin-image-container">
                             <img 
-                              src={getSkinImageUrl(selectedChampion, skin.num)}
+                              src={selectedChampion ? getSkinImageUrl(selectedChampion, skin.num) : ''}
                               alt={skin.name}
                               className="skin-image"
-                              onClick={() => !loading && handleSkinClick(selectedChampion, skin)}
+                              onClick={() => !loading && selectedChampion && handleSkinClick(selectedChampion, skin)}
                             />
                             {selectedSkinId === skin.id && !selectedChromaId && (
                               <div className="skin-active-indicator">
@@ -586,7 +547,7 @@ function AppContent(): React.JSX.Element {
                               className={`skin-favorite-btn ${isFavorite ? 'active' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation()
-                                toggleFavorite(selectedChampion, skin)
+                                selectedChampion && toggleFavorite(selectedChampion, skin)
                               }}
                               title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                             >
