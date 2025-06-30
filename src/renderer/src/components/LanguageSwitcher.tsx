@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useLocale } from '../contexts/useLocale'
-import './LanguageSwitcher.css'
 
 export const LanguageSwitcher: React.FC = () => {
   const { currentLanguage, setLanguage, languages } = useLocale()
@@ -26,16 +25,16 @@ export const LanguageSwitcher: React.FC = () => {
   }
 
   return (
-    <div className="language-switcher" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef}>
       <button
-        className="language-button"
+        className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-anthracite-700 hover:bg-anthracite-600 transition-colors text-text-secondary hover:text-text-primary"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Select language"
       >
-        <span className="language-flag">{currentLang?.flag}</span>
-        <span className="language-code">{currentLang?.code.split('_')[0]}</span>
+        <span className="text-base">{currentLang?.flag}</span>
+        <span className="text-xs font-medium uppercase">{currentLang?.code.split('_')[0]}</span>
         <svg
-          className={`dropdown-arrow ${isOpen ? 'open' : ''}`}
+          className={`w-2.5 h-2.5 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           width="10"
           height="6"
           viewBox="0 0 10 6"
@@ -45,15 +44,19 @@ export const LanguageSwitcher: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="language-dropdown">
+        <div className="absolute top-full right-0 mt-1 w-48 rounded-lg bg-anthracite-700 border border-anthracite-500 shadow-lg overflow-hidden animate-slide-down">
           {languages.map((lang) => (
             <button
               key={lang.code}
-              className={`language-option ${lang.code === currentLanguage ? 'active' : ''}`}
+              className={`w-full flex items-center gap-3 px-3 py-2 text-sm transition-colors
+                ${lang.code === currentLanguage 
+                  ? 'bg-claude-purple text-white' 
+                  : 'text-text-secondary hover:bg-anthracite-600 hover:text-text-primary'
+                }`}
               onClick={() => handleLanguageChange(lang.code)}
             >
-              <span className="language-flag">{lang.flag}</span>
-              <span className="language-name">{lang.name}</span>
+              <span className="text-base">{lang.flag}</span>
+              <span className="font-medium">{lang.name}</span>
             </button>
           ))}
         </div>

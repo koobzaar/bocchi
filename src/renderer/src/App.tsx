@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react'
-import './App.css'
 import { TitleBar } from './components/TitleBar'
 import { useTranslation } from 'react-i18next'
 import { LocaleProvider } from './contexts/LocaleContextProvider'
@@ -341,42 +340,45 @@ function AppContent(): React.JSX.Element {
   return (
     <>
       <TitleBar />
-      <div className="champion-browser">
+      <div className="flex flex-col h-screen pt-8 bg-anthracite-900 text-text-primary overflow-hidden">
         {toolsExist === false && (
-          <div className="tools-download-modal">
-            <div className="modal-content">
-              <h3>{t('tools.required')}</h3>
-              <p>{t('tools.description')}</p>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-anthracite-700 rounded-lg p-6 max-w-md w-full mx-4 border border-anthracite-500">
+              <h3 className="text-lg font-semibold mb-2">{t('tools.required')}</h3>
+              <p className="text-text-secondary mb-4">{t('tools.description')}</p>
               {downloadingTools ? (
-                <div className="download-progress">
-                  <p>{t('tools.downloading', { progress: toolsDownloadProgress })}</p>
-                  <div className="progress-bar">
+                <div>
+                  <p className="text-sm text-text-secondary mb-2">{t('tools.downloading', { progress: toolsDownloadProgress })}</p>
+                  <div className="w-full bg-anthracite-600 rounded-full h-2 overflow-hidden">
                     <div
-                      className="progress-fill"
+                      className="bg-claude-purple h-full transition-all duration-300 animate-progress"
                       style={{ width: `${toolsDownloadProgress}%` }}
                     ></div>
                   </div>
                 </div>
               ) : (
-                <button className="btn btn-primary" onClick={downloadTools}>
+                <button 
+                  className="w-full px-4 py-2 bg-claude-orange hover:bg-claude-orange-dark text-white font-medium rounded-md transition-colors"
+                  onClick={downloadTools}
+                >
                   {t('tools.downloadTools')}
                 </button>
               )}
             </div>
           </div>
         )}
-        <div className="browser-header">
-          <div className="browser-controls">
-            <div className="game-path-mini">
+        <div className="flex items-center justify-between px-4 py-3 bg-anthracite-800 border-b border-anthracite-500">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="flex items-center gap-2 flex-1 max-w-md">
               <input
                 type="text"
                 value={gamePath}
                 placeholder="Game path not set"
                 readOnly
-                className="game-path-input-mini"
+                className="flex-1 px-3 py-1.5 text-sm bg-anthracite-700 border border-anthracite-500 rounded-md text-text-secondary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-claude-purple"
               />
               <button
-                className="btn btn-secondary btn-small"
+                className="px-3 py-1.5 text-sm bg-anthracite-600 hover:bg-anthracite-500 text-text-secondary hover:text-text-primary rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={browseForGame}
                 disabled={loading}
               >
@@ -384,24 +386,40 @@ function AppContent(): React.JSX.Element {
               </button>
             </div>
             <button
-              className={`btn btn-secondary ${showFavoritesOnly ? 'btn-active' : ''}`}
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5
+                ${showFavoritesOnly 
+                  ? 'bg-claude-purple text-white' 
+                  : 'bg-anthracite-600 hover:bg-anthracite-500 text-text-secondary hover:text-text-primary'
+                }`}
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
               disabled={loading}
             >
-              ❤️ {t('nav.favorites')}
+              <span>❤️</span> {t('nav.favorites')}
             </button>
             {!championData && (
-              <button className="btn btn-primary" onClick={fetchChampionData} disabled={loading}>
+              <button 
+                className="px-4 py-1.5 text-sm bg-claude-orange hover:bg-claude-orange-dark text-white font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={fetchChampionData} 
+                disabled={loading}
+              >
                 {t('champion.downloadData')}
               </button>
             )}
             {championData && (
-              <button className="btn btn-secondary" onClick={fetchChampionData} disabled={loading}>
+              <button 
+                className="px-3 py-1.5 text-sm bg-anthracite-600 hover:bg-anthracite-500 text-text-secondary hover:text-text-primary rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={fetchChampionData} 
+                disabled={loading}
+              >
                 {t('champion.updateData')}
               </button>
             )}
             {isPatcherRunning && (
-              <button className="btn btn-danger" onClick={stopPatcher} disabled={loading}>
+              <button 
+                className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={stopPatcher} 
+                disabled={loading}
+              >
                 {t('actions.stop')} Patcher
               </button>
             )}
@@ -409,18 +427,18 @@ function AppContent(): React.JSX.Element {
         </div>
 
         {championData ? (
-          <div className="browser-content">
-            <div className="champion-sidebar">
-              <div className="search-container">
+          <div className="flex flex-1 overflow-hidden">
+            <div className="w-64 bg-anthracite-800 border-r border-anthracite-500 flex flex-col">
+              <div className="p-3">
                 <input
                   type="text"
                   placeholder="Search champions"
                   value={championSearchQuery}
                   onChange={(e) => setChampionSearchQuery(e.target.value)}
-                  className="search-input"
+                  className="w-full px-3 py-2 text-sm bg-anthracite-700 border border-anthracite-500 rounded-md text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-claude-purple"
                 />
               </div>
-              <div className="champion-list">
+              <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-anthracite scrollbar-thumb-anthracite">
                 {filteredChampions.map((champion, index) => {
                   const showLetter =
                     index === 0 ||
@@ -430,35 +448,49 @@ function AppContent(): React.JSX.Element {
                   return (
                     <div key={champion.key}>
                       {showLetter && (
-                        <div className="champion-letter">{champion.name[0].toUpperCase()}</div>
+                        <div className="px-3 py-1 text-xs font-semibold text-text-muted uppercase">
+                          {champion.name[0].toUpperCase()}
+                        </div>
                       )}
                       <div
-                        className={`champion-item ${selectedChampion?.key === champion.key ? 'active' : ''}`}
+                        className={`flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors
+                          ${selectedChampion?.key === champion.key 
+                            ? 'bg-claude-purple text-white' 
+                            : 'hover:bg-anthracite-600 text-text-secondary hover:text-text-primary'
+                          }`}
                         onClick={() => setSelectedChampion(champion)}
                       >
-                        <img src={champion.image} alt={champion.name} className="champion-icon" />
-                        <span className="champion-name">{champion.name}</span>
+                        <img 
+                          src={champion.image} 
+                          alt={champion.name} 
+                          className="w-8 h-8 rounded" 
+                        />
+                        <span className="text-sm font-medium">{champion.name}</span>
                       </div>
                     </div>
                   )
                 })}
               </div>
-              {championData && <div className="version-info">Version: {championData.version}</div>}
+              {championData && (
+                <div className="px-3 py-2 text-xs text-text-muted border-t border-anthracite-500">
+                  Version: {championData.version}
+                </div>
+              )}
             </div>
 
-            <div className="skin-gallery">
-              <div className="skin-search-container">
+            <div className="flex-1 flex flex-col bg-anthracite-900 overflow-hidden">
+              <div className="p-4">
                 <input
                   type="text"
                   placeholder="Search skins across all champions..."
                   value={skinSearchQuery}
                   onChange={(e) => setSkinSearchQuery(e.target.value)}
-                  className="skin-search-input"
+                  className="w-full px-4 py-2 bg-anthracite-800 border border-anthracite-500 rounded-md text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-claude-purple"
                 />
               </div>
               {(selectedChampion || isSearchingGlobally) && (
-                <>
-                  <div className="skin-grid">
+                <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-anthracite scrollbar-thumb-anthracite p-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                     {isSearchingGlobally
                       ? // Show global search results
                         (getFilteredSkins() as Array<{ champion: Champion; skin: Skin }>).map(
@@ -473,28 +505,41 @@ function AppContent(): React.JSX.Element {
                             return (
                               <div
                                 key={`${champion.key}_${skin.id}`}
-                                className={`skin-card ${selectedSkinId === skin.id && !selectedChromaId ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+                                className={`group relative bg-anthracite-800 rounded-lg overflow-hidden border-2 transition-all
+                                  ${selectedSkinId === skin.id && !selectedChromaId 
+                                    ? 'border-claude-purple shadow-lg' 
+                                    : 'border-anthracite-600 hover:border-anthracite-400'
+                                  } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                                `}
                               >
-                                <div className="skin-image-container">
+                                <div className="relative aspect-[0.67] overflow-hidden bg-anthracite-700">
                                   <img
                                     src={getSkinImageUrl(champion, skin.num)}
                                     alt={skin.name}
-                                    className="skin-image"
+                                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                     onClick={() => !loading && handleSkinClick(champion, skin)}
                                   />
-                                  <div className="skin-champion-badge">{champion.name}</div>
+                                  <div className="absolute top-2 left-2 px-2 py-1 bg-black bg-opacity-75 rounded text-xs text-white font-medium">
+                                    {champion.name}
+                                  </div>
                                   {selectedSkinId === skin.id && !selectedChromaId && (
-                                    <div className="skin-active-indicator">
-                                      <div className="checkmark">✓</div>
+                                    <div className="absolute inset-0 bg-claude-purple bg-opacity-20 flex items-center justify-center">
+                                      <div className="w-12 h-12 bg-claude-purple rounded-full flex items-center justify-center text-white text-xl font-bold">
+                                        ✓
+                                      </div>
                                     </div>
                                   )}
                                   {isDownloaded && selectedSkinId !== skin.id && (
-                                    <div className="skin-downloaded-indicator" title="Downloaded">
-                                      <div className="download-icon">↓</div>
+                                    <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-600 rounded-full flex items-center justify-center" title="Downloaded">
+                                      <span className="text-white text-xs">↓</span>
                                     </div>
                                   )}
                                   <button
-                                    className={`skin-favorite-btn ${isFavorite ? 'active' : ''}`}
+                                    className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all
+                                      ${isFavorite 
+                                        ? 'bg-red-500 text-white' 
+                                        : 'bg-black bg-opacity-50 text-white hover:bg-opacity-75'
+                                      }`}
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       toggleFavorite(champion, skin)
@@ -506,8 +551,8 @@ function AppContent(): React.JSX.Element {
                                     {isFavorite ? '❤️' : '🤍'}
                                   </button>
                                 </div>
-                                <div className="skin-info">
-                                  <p className="skin-title">{skin.name}</p>
+                                <div className="p-3">
+                                  <p className="text-sm font-medium text-text-primary truncate">{skin.name}</p>
                                 </div>
                               </div>
                             )
@@ -534,9 +579,14 @@ function AppContent(): React.JSX.Element {
                             return (
                               <div
                                 key={skin.id}
-                                className={`skin-card ${selectedSkinId === skin.id && !selectedChromaId ? 'selected' : ''} ${loading ? 'disabled' : ''}`}
+                                className={`group relative bg-anthracite-800 rounded-lg overflow-hidden border-2 transition-all
+                                  ${selectedSkinId === skin.id && !selectedChromaId 
+                                    ? 'border-claude-purple shadow-lg' 
+                                    : 'border-anthracite-600 hover:border-anthracite-400'
+                                  } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                                `}
                               >
-                                <div className="skin-image-container">
+                                <div className="relative aspect-[0.67] overflow-hidden bg-anthracite-700">
                                   <img
                                     src={
                                       selectedChampion
@@ -544,7 +594,7 @@ function AppContent(): React.JSX.Element {
                                         : ''
                                     }
                                     alt={skin.name}
-                                    className="skin-image"
+                                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                     onClick={() =>
                                       !loading &&
                                       selectedChampion &&
@@ -552,17 +602,23 @@ function AppContent(): React.JSX.Element {
                                     }
                                   />
                                   {selectedSkinId === skin.id && !selectedChromaId && (
-                                    <div className="skin-active-indicator">
-                                      <div className="checkmark">✓</div>
+                                    <div className="absolute inset-0 bg-claude-purple bg-opacity-20 flex items-center justify-center">
+                                      <div className="w-12 h-12 bg-claude-purple rounded-full flex items-center justify-center text-white text-xl font-bold">
+                                        ✓
+                                      </div>
                                     </div>
                                   )}
                                   {isDownloaded && selectedSkinId !== skin.id && (
-                                    <div className="skin-downloaded-indicator" title="Downloaded">
-                                      <div className="download-icon">↓</div>
+                                    <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-600 rounded-full flex items-center justify-center" title="Downloaded">
+                                      <span className="text-white text-xs">↓</span>
                                     </div>
                                   )}
                                   <button
-                                    className={`skin-favorite-btn ${isFavorite ? 'active' : ''}`}
+                                    className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all
+                                      ${isFavorite 
+                                        ? 'bg-red-500 text-white' 
+                                        : 'bg-black bg-opacity-50 text-white hover:bg-opacity-75'
+                                      }`}
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       selectedChampion && toggleFavorite(selectedChampion, skin)
@@ -574,28 +630,32 @@ function AppContent(): React.JSX.Element {
                                     {isFavorite ? '❤️' : '🤍'}
                                   </button>
                                 </div>
-                                <div className="skin-info">
-                                  <p className="skin-title">{skin.name}</p>
+                                <div className="p-3">
+                                  <p className="text-sm font-medium text-text-primary truncate">{skin.name}</p>
                                 </div>
                               </div>
                             )
                           })}
                   </div>
-                </>
+                </div>
               )}
             </div>
           </div>
         ) : (
-          <div className="no-data-message">
-            <p>{t('champion.noData')}</p>
-            <button className="btn btn-primary" onClick={fetchChampionData} disabled={loading}>
+          <div className="flex-1 flex flex-col items-center justify-center p-8">
+            <p className="text-lg text-text-secondary mb-4">{t('champion.noData')}</p>
+            <button 
+              className="px-6 py-2 bg-claude-orange hover:bg-claude-orange-dark text-white font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={fetchChampionData} 
+              disabled={loading}
+            >
               {t('champion.downloadData')}
             </button>
           </div>
         )}
 
-        <div className="status-bar">
-          <div className={`status-message ${loading ? 'loading' : ''}`}>
+        <div className="border-t border-anthracite-500 bg-anthracite-800 px-4 py-2">
+          <div className={`text-sm text-text-secondary ${loading ? 'after:content-["..."] after:animate-dots' : ''}`}>
             {statusMessage || t('app.ready')}
           </div>
         </div>
