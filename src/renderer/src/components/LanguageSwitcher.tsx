@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useLocale } from '../contexts/LocaleContext'
+import { useLocale } from '../contexts/useLocale'
 import './LanguageSwitcher.css'
 
 export const LanguageSwitcher: React.FC = () => {
