@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { DarkModeToggle } from './DarkModeToggle'
+import logoImg from '../assets/images/logo-small.png'
 
 export function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false)
@@ -36,8 +37,15 @@ export function TitleBar() {
         className="flex-1 h-full flex items-center px-6"
         style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
       >
-        <div className="text-sm font-bold text-charcoal-900 dark:text-charcoal-100 tracking-wide">
-          CSLOL Skin Launcher
+        <div className="flex items-center gap-2">
+          <img 
+            src={logoImg} 
+            alt="Bocchi" 
+            className="w-5 h-5 object-contain"
+          />
+          <div className="text-sm font-bold text-charcoal-900 dark:text-charcoal-100 tracking-wide">
+            Bocchi
+          </div>
         </div>
       </div>
       <div
