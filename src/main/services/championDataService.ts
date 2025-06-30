@@ -160,7 +160,7 @@ export class ChampionDataService {
   public async fetchAllLanguages(): Promise<{ success: boolean; message: string }> {
     try {
       for (const lang of this.supportedLanguages) {
-        console.log(`Fetching champion data for ${lang}...`)
+        console.log(`Fetching champion data for ${lang}`)
         await this.fetchAndSaveChampionData(lang)
       }
       return {

@@ -27,7 +27,7 @@ export default tseslint.config(
       ...eslintPluginReactRefresh.configs.vite.rules,
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
-      'prettier/prettier': ['off', { endOfLine: 'off' }],
+      'prettier/prettier': ['off', { endOfLine: 'auto' }],
       'react-refresh/only-export-components': 'off'
     }
   },

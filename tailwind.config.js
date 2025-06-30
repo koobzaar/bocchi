@@ -1,49 +1,88 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    './src/renderer/index.html',
-    './src/renderer/src/**/*.{js,ts,jsx,tsx}',
-  ],
+  content: ['./src/renderer/index.html', './src/renderer/src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        // Anthropic-inspired dark theme colors
-        anthracite: {
-          900: '#0a0a0a', // Darkest background
-          800: '#141414', // Dark background
-          700: '#1a1a1a', // Card background
-          600: '#2a2a2a', // Elevated surfaces
-          500: '#3a3a3a', // Borders/dividers
-          400: '#4a4a4a', // Hover states
-          300: '#5a5a5a' // Active borders
+        // Improved light theme colors with better contrast
+        cream: {
+          50: '#fefefe',
+          100: '#fcfbfa',
+          200: '#f8f6f3', // Main light background - less bright
+          300: '#f0ebe5',
+          400: '#e5ddd2',
+          500: '#d3c5b6',
+          600: '#b8a593',
+          700: '#9a8470',
+          800: '#7d6856',
+          900: '#665447',
+          950: '#3a2f29'
         },
-        claude: {
-          purple: '#8b5cf6', // Primary accent
-          'purple-light': '#a78bfa',
-          'purple-dark': '#7c3aed',
-          orange: '#ff6b6b', // Primary action
-          'orange-light': '#ffa8a8',
-          'orange-dark': '#f97316',
-          blue: '#3b82f6',
-          gold: '#c89b3c' // LoL theme accent
+        terracotta: {
+          50: '#fef7f5',
+          100: '#fee9e5',
+          200: '#fcc7bc',
+          300: '#f9a08c',
+          400: '#f47560',
+          500: '#d4654e', // Primary accent
+          600: '#c24b35',
+          700: '#a13829',
+          800: '#842f24',
+          900: '#6f2922',
+          950: '#3c130f'
         },
-        // Text colors
+        charcoal: {
+          50: '#f6f6f6',
+          100: '#e7e7e7',
+          200: '#d1d1d1',
+          300: '#b0b0b0',
+          400: '#888888',
+          500: '#6d6d6d',
+          600: '#5d5d5d',
+          700: '#4f4f4f',
+          800: '#3d3d3d',
+          900: '#2d2d2d',
+          950: '#1a1a1a' // Main dark background
+        },
+        // Semantic colors
+        background: {
+          light: '#f5f2ed',
+          dark: '#1a1a1a'
+        },
+        surface: {
+          light: '#ffffff',
+          dark: '#2d2d2d'
+        },
         text: {
-          primary: '#ffffff',
-          secondary: '#e5e5e5',
-          muted: '#9ca3af',
-          disabled: '#6b7280'
+          primary: {
+            light: '#0a0a0a', // Much darker for better contrast
+            dark: '#ffffff'
+          },
+          secondary: {
+            light: '#2d2d2d', // Darker secondary text
+            dark: '#b0b0b0'
+          },
+          muted: {
+            light: '#4a4a4a', // Darker muted text
+            dark: '#888888'
+          }
+        },
+        border: {
+          light: '#e7e7e7',
+          dark: '#3d3d3d'
         }
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+        sans: ['Figtree', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
       },
       animation: {
         dots: 'dots 1.5s steps(5, end) infinite',
         'fade-in': 'fadeIn 0.2s ease-out',
         'slide-down': 'slideDown 0.2s ease-out',
-        progress: 'progress 2s ease-in-out infinite'
+        progress: 'progress 2s ease-in-out infinite',
+        'card-hover': 'cardHover 0.3s ease-out forwards',
+        'scale-in': 'scaleIn 0.2s ease-out'
       },
       keyframes: {
         dots: {
@@ -81,6 +120,24 @@ module.exports = {
         progress: {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' }
+        },
+        cardHover: {
+          '0%': {
+            transform: 'translateY(0) scale(1)'
+          },
+          '100%': {
+            transform: 'translateY(-4px) scale(1.02)'
+          }
+        },
+        scaleIn: {
+          '0%': {
+            transform: 'scale(0.95)',
+            opacity: '0'
+          },
+          '100%': {
+            transform: 'scale(1)',
+            opacity: '1'
+          }
         }
       },
       backgroundImage: {
@@ -89,34 +146,44 @@ module.exports = {
       transitionProperty: {
         height: 'height',
         spacing: 'margin, padding'
+      },
+      borderRadius: {
+        xs: '4px',
+        sm: '6px',
+        md: '8px',
+        lg: '12px',
+        xl: '16px',
+        '2xl': '20px',
+        '3xl': '24px',
+        pill: '9999px'
+      },
+      fontSize: {
+        xxs: '0.625rem', // 10px
+        xs: '0.75rem', // 12px
+        sm: '0.875rem', // 14px
+        base: '1rem', // 16px
+        lg: '1.125rem', // 18px
+        xl: '1.25rem', // 20px
+        '2xl': '1.5rem', // 24px
+        '3xl': '1.875rem', // 30px
+        '4xl': '2.25rem', // 36px
+        '5xl': '3rem' // 48px
+      },
+      spacing: {
+        18: '4.5rem',
+        88: '22rem',
+        128: '32rem'
+      },
+      boxShadow: {
+        soft: '0 2px 8px rgba(0, 0, 0, 0.04)',
+        medium: '0 4px 16px rgba(0, 0, 0, 0.08)',
+        large: '0 8px 32px rgba(0, 0, 0, 0.12)',
+        xl: '0 16px 48px rgba(0, 0, 0, 0.16)',
+        'dark-soft': '0 2px 8px rgba(0, 0, 0, 0.2)',
+        'dark-medium': '0 4px 16px rgba(0, 0, 0, 0.3)',
+        'dark-large': '0 8px 32px rgba(0, 0, 0, 0.4)'
       }
     }
   },
-  plugins: [
-    // Custom plugin for scrollbar styling
-    function ({ addUtilities }) {
-      addUtilities({
-        '.scrollbar-thin': {
-          '&::-webkit-scrollbar': {
-            width: '8px',
-            height: '8px'
-          }
-        },
-        '.scrollbar-track-anthracite': {
-          '&::-webkit-scrollbar-track': {
-            backgroundColor: '#1e293b'
-          }
-        },
-        '.scrollbar-thumb-anthracite': {
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: '#475569',
-            borderRadius: '4px'
-          },
-          '&::-webkit-scrollbar-thumb:hover': {
-            backgroundColor: '#64748b'
-          }
-        }
-      })
-    }
-  ]
+  plugins: []
 }

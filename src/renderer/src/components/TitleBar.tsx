@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { DarkModeToggle } from './DarkModeToggle'
 
 export function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false)
@@ -30,34 +31,48 @@ export function TitleBar() {
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-8 bg-anthracite-800 border-b border-anthracite-500 flex items-center justify-between select-none z-50">
-      <div className="flex-1 h-full flex items-center px-4" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
-        <div className="text-sm font-medium text-text-primary">CSLOL Skin Launcher</div>
+    <div className="fixed top-0 left-0 right-0 h-10 bg-white dark:bg-charcoal-900 border-b-2 border-charcoal-200 dark:border-charcoal-800 flex items-center justify-between select-none z-50 shadow-md dark:shadow-none">
+      <div
+        className="flex-1 h-full flex items-center px-6"
+        style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+      >
+        <div className="text-sm font-bold text-charcoal-900 dark:text-charcoal-100 tracking-wide">
+          CSLOL Skin Launcher
+        </div>
       </div>
-      <div className="flex items-center px-2" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
+      <div
+        className="flex items-center gap-2 px-2"
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+      >
+        <DarkModeToggle />
         <LanguageSwitcher />
       </div>
       <div className="flex" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
-        <button 
-          className="w-12 h-8 flex items-center justify-center hover:bg-anthracite-600 transition-colors group"
-          onClick={handleMinimize} 
+        <button
+          className="w-11 h-10 flex items-center justify-center hover:bg-charcoal-100 dark:hover:bg-charcoal-800 transition-all duration-200 group"
+          onClick={handleMinimize}
           aria-label="Minimize"
         >
-          <div className="w-3 h-[1px] bg-text-muted group-hover:bg-text-secondary"></div>
+          <div className="w-3 h-[1.5px] bg-charcoal-400 dark:bg-charcoal-500 group-hover:bg-charcoal-600 dark:group-hover:bg-charcoal-300 transition-colors"></div>
         </button>
         <button
-          className="w-12 h-8 flex items-center justify-center hover:bg-anthracite-600 transition-colors group"
+          className="w-11 h-10 flex items-center justify-center hover:bg-charcoal-100 dark:hover:bg-charcoal-800 transition-all duration-200 group"
           onClick={handleMaximize}
           aria-label={isMaximized ? 'Restore' : 'Maximize'}
         >
-          <div className={`${isMaximized ? 'w-2.5 h-2.5 border border-text-muted group-hover:border-text-secondary' : 'w-3 h-3 border border-text-muted group-hover:border-text-secondary'}`}></div>
+          <div
+            className={`${isMaximized ? 'w-2.5 h-2.5 border-[1.5px] border-charcoal-400 dark:border-charcoal-500 group-hover:border-charcoal-600 dark:group-hover:border-charcoal-300' : 'w-3 h-3 border-[1.5px] border-charcoal-400 dark:border-charcoal-500 group-hover:border-charcoal-600 dark:group-hover:border-charcoal-300'} transition-colors rounded-[1px]`}
+          ></div>
         </button>
-        <button 
-          className="w-12 h-8 flex items-center justify-center hover:bg-red-600 transition-colors group"
-          onClick={handleClose} 
+        <button
+          className="w-11 h-10 flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 group"
+          onClick={handleClose}
           aria-label="Close"
         >
-          <svg className="w-3 h-3 text-text-muted group-hover:text-white" viewBox="0 0 12 12">
+          <svg
+            className="w-3.5 h-3.5 text-charcoal-400 dark:text-charcoal-500 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors"
+            viewBox="0 0 12 12"
+          >
             <path d="M1 1L11 11M1 11L11 1" stroke="currentColor" strokeWidth="1.5" fill="none" />
           </svg>
         </button>

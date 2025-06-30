@@ -6,8 +6,48 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://ddragon.leagueoflegends.com https://raw.githubusercontent.com"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://ddragon.leagueoflegends.com https://raw.githubusercontent.com"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Prevent theme flicker by applying dark mode class before render
+      ;(function () {
+        try {
+          const darkMode = localStorage.getItem('darkMode')
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+          if (darkMode === 'true' || (!darkMode && prefersDark)) {
+            document.documentElement.classList.add('dark')
+          }
+        } catch (e) {
+          // Fail silently
+        }
+      })()
+    </script>
+    <style>
+      /* Prevent flash of unstyled content */
+      html {
+        background-color: #f8f6f3; /* cream-200 */
+        color: #0a0a0a; /* charcoal-950 */
+      }
+      html.dark {
+        background-color: #1a1a1a; /* charcoal-950 */
+        color: #fefefe; /* cream-50 */
+      }
+      body {
+        margin: 0;
+        opacity: 0;
+        transition: opacity 0.1s ease-in;
+      }
+      body.loaded {
+        opacity: 1;
+      }
+    </style>
   </head>
 
   <body>

@@ -27,7 +27,7 @@ export const LanguageSwitcher: React.FC = () => {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-anthracite-700 hover:bg-anthracite-600 transition-colors text-text-secondary hover:text-text-primary"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-charcoal-800 hover:bg-cream-100 dark:hover:bg-charcoal-700 transition-colors text-charcoal-700 dark:text-charcoal-200 border border-charcoal-200 dark:border-charcoal-700 shadow-sm"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Select language"
       >
@@ -44,19 +44,22 @@ export const LanguageSwitcher: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-1 w-48 rounded-lg bg-anthracite-700 border border-anthracite-500 shadow-lg overflow-hidden animate-slide-down">
+        <div className="absolute top-full right-0 mt-2 w-48 rounded-lg bg-white dark:bg-charcoal-800 border border-charcoal-200 dark:border-charcoal-700 shadow-lg dark:shadow-dark-lg overflow-hidden animate-slide-down">
           {languages.map((lang) => (
             <button
               key={lang.code}
-              className={`w-full flex items-center gap-3 px-3 py-2 text-sm transition-colors
-                ${lang.code === currentLanguage 
-                  ? 'bg-claude-purple text-white' 
-                  : 'text-text-secondary hover:bg-anthracite-600 hover:text-text-primary'
+              className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors
+                ${
+                  lang.code === currentLanguage
+                    ? 'bg-terracotta-500 text-white font-medium'
+                    : 'text-charcoal-700 dark:text-charcoal-200 hover:bg-cream-100 dark:hover:bg-charcoal-700'
                 }`}
               onClick={() => handleLanguageChange(lang.code)}
             >
               <span className="text-base">{lang.flag}</span>
-              <span className="font-medium">{lang.name}</span>
+              <span className={lang.code === currentLanguage ? 'font-medium' : ''}>
+                {lang.name}
+              </span>
             </button>
           ))}
         </div>
