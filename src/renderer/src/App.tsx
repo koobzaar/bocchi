@@ -58,16 +58,34 @@ function AppContent(): React.JSX.Element {
   const [downloadingTools, setDownloadingTools] = useState<boolean>(false)
   const [toolsDownloadProgress, setToolsDownloadProgress] = useState<number>(0)
 
-  const loadChampionData = useCallback(async () => {
-    const result = await window.api.loadChampionData(currentLanguage)
-    if (result.success && result.data) {
-      setChampionData(result.data)
-      // Select first champion by default
-      if (result.data.champions.length > 0) {
-        setSelectedChampion(result.data.champions[0])
+  const loadChampionData = useCallback(
+    async (preserveSelection = false) => {
+      const result = await window.api.loadChampionData(currentLanguage)
+      if (result.success && result.data) {
+        setChampionData(result.data)
+
+        if (preserveSelection) {
+          // Try to preserve the current selection
+          setSelectedChampion((prevSelected) => {
+            if (prevSelected) {
+              const sameChampion = result.data.champions.find((c) => c.key === prevSelected.key)
+              return sameChampion || result.data.champions[0]
+            }
+            return result.data.champions[0]
+          })
+        } else {
+          // Only select first champion if none is selected
+          setSelectedChampion((prevSelected) => {
+            if (!prevSelected && result.data.champions.length > 0) {
+              return result.data.champions[0]
+            }
+            return prevSelected
+          })
+        }
       }
-    }
-  }, [currentLanguage])
+    },
+    [currentLanguage]
+  )
 
   const detectGamePath = useCallback(async () => {
     const result = await window.api.detectGame()
@@ -99,9 +117,10 @@ function AppContent(): React.JSX.Element {
   // Reload champion data when language changes
   useEffect(() => {
     if (championData) {
-      loadChampionData()
+      loadChampionData(true) // preserve selection
     }
-  }, [championData, currentLanguage, loadChampionData])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentLanguage])
 
   const checkPatcherStatus = async () => {
     const isRunning = await window.api.isPatcherRunning()
@@ -568,9 +587,9 @@ function AppContent(): React.JSX.Element {
           </div>
         ) : (
           <div className="no-data-message">
-            <p>No champion data found</p>
+            <p>{t('champion.noData')}</p>
             <button className="btn btn-primary" onClick={fetchChampionData} disabled={loading}>
-              Download Champion Data
+              {t('champion.downloadData')}
             </button>
           </div>
         )}

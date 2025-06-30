@@ -135,8 +135,11 @@ export class ChampionDataService {
     try {
       const data = await fs.readFile(this.getDataPath(language), 'utf-8')
       return JSON.parse(data)
-    } catch (error) {
-      console.error('Error loading champion data:', error)
+    } catch (error: any) {
+      // Don't log error for file not found - this is expected on first run
+      if (error.code !== 'ENOENT') {
+        console.error('Error loading champion data:', error)
+      }
       return null
     }
   }
