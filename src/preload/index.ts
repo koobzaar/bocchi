@@ -21,9 +21,9 @@ const api = {
   isPatcherRunning: () => ipcRenderer.invoke('is-patcher-running'),
   
   // Champion data
-  fetchChampionData: () => ipcRenderer.invoke('fetch-champion-data'),
-  loadChampionData: () => ipcRenderer.invoke('load-champion-data'),
-  checkChampionUpdates: () => ipcRenderer.invoke('check-champion-updates'),
+  fetchChampionData: (language?: string) => ipcRenderer.invoke('fetch-champion-data', language),
+  loadChampionData: (language?: string) => ipcRenderer.invoke('load-champion-data', language),
+  checkChampionUpdates: (language?: string) => ipcRenderer.invoke('check-champion-updates', language),
   
   // Favorites
   addFavorite: (championKey: string, skinId: string, skinName: string) => 
@@ -40,7 +40,17 @@ const api = {
   getToolsInfo: () => ipcRenderer.invoke('get-tools-info'),
   onToolsDownloadProgress: (callback: (progress: number) => void) => {
     ipcRenderer.on('tools-download-progress', (_, progress) => callback(progress))
-  }
+  },
+  
+  // Window controls
+  minimizeWindow: () => ipcRenderer.send('window-minimize'),
+  maximizeWindow: () => ipcRenderer.send('window-maximize'),
+  closeWindow: () => ipcRenderer.send('window-close'),
+  isWindowMaximized: () => ipcRenderer.invoke('window-is-maximized'),
+  
+  // Settings
+  getSettings: (key?: string) => ipcRenderer.invoke('get-settings', key),
+  setSettings: (key: string, value: any) => ipcRenderer.invoke('set-settings', key, value)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

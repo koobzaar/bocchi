@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 import './App.css'
+import { TitleBar } from './components/TitleBar'
+import { useTranslation } from 'react-i18next'
+import { LocaleProvider, useLocale } from './contexts/LocaleContext'
 
 interface Champion {
   id: number
@@ -15,6 +18,7 @@ interface Skin {
   id: string
   num: number
   name: string
+  nameEn?: string
   chromas: boolean
 }
 
@@ -37,7 +41,9 @@ interface DownloadedSkin {
   localPath?: string
 }
 
-function App(): React.JSX.Element {
+function AppContent(): React.JSX.Element {
+  const { t } = useTranslation()
+  const { currentLanguage } = useLocale()
   const [gamePath, setGamePath] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
   const [statusMessage, setStatusMessage] = useState<string>('')
@@ -75,6 +81,13 @@ function App(): React.JSX.Element {
     })
   }, [])
 
+  // Reload champion data when language changes
+  useEffect(() => {
+    if (championData) {
+      loadChampionData()
+    }
+  }, [currentLanguage])
+
   const checkPatcherStatus = async () => {
     const isRunning = await window.api.isPatcherRunning()
     setIsPatcherRunning(isRunning)
@@ -102,7 +115,7 @@ function App(): React.JSX.Element {
   }
 
   const loadChampionData = async () => {
-    const result = await window.api.loadChampionData()
+    const result = await window.api.loadChampionData(currentLanguage)
     if (result.success && result.data) {
       setChampionData(result.data)
       // Select first champion by default
@@ -116,9 +129,9 @@ function App(): React.JSX.Element {
     const result = await window.api.detectGame()
     if (result.success && result.gamePath) {
       setGamePath(result.gamePath)
-      setStatusMessage('Game path detected automatically')
+      setStatusMessage(t('status.gameDetected'))
     } else {
-      setStatusMessage('Game path not found. Please browse manually.')
+      setStatusMessage(t('status.gameNotFound'))
     }
   }
 
@@ -156,14 +169,14 @@ function App(): React.JSX.Element {
 
   const fetchChampionData = async () => {
     setLoading(true)
-    setStatusMessage('Fetching champion data...')
+    setStatusMessage(t('status.fetchingData'))
     
-    const result = await window.api.fetchChampionData()
+    const result = await window.api.fetchChampionData(currentLanguage)
     if (result.success) {
-      setStatusMessage(`Successfully fetched data for ${result.championCount} champions!`)
+      setStatusMessage(t('status.dataFetched', { count: result.championCount }))
       await loadChampionData()
     } else {
-      setStatusMessage(`Error: ${result.message}`)
+      setStatusMessage(`${t('errors.generic')}: ${result.message}`)
     }
     
     setLoading(false)
@@ -198,18 +211,19 @@ function App(): React.JSX.Element {
       // Check if skin/chroma is already downloaded
       let skinFileName: string
       let githubUrl: string
+      const downloadName = (skin.nameEn || skin.name).replace(/:/g, '') // Use English name for download and remove colons
       
       if (chromaId) {
         // Handle chroma
-        skinFileName = `${skin.name} ${chromaId}.zip`
+        skinFileName = `${downloadName} ${chromaId}.zip`
         const isChromaDownloaded = downloadedSkins.some(
           ds => ds.championName === champion.key && ds.skinName === skinFileName
         )
         
         if (!isChromaDownloaded) {
-          githubUrl = `https://github.com/darkseal-org/lol-skins/blob/main/skins/${champion.key}/chromas/${encodeURIComponent(skin.name)}/${encodeURIComponent(skinFileName)}`
+          githubUrl = `https://github.com/darkseal-org/lol-skins/blob/main/skins/${champion.key}/chromas/${encodeURIComponent(downloadName)}/${encodeURIComponent(skinFileName)}`
           
-          setStatusMessage(`Downloading ${skin.name} (Chroma)...`)
+          setStatusMessage(t('status.downloading', { name: `${skin.name} (Chroma)` }))
           
           const downloadResult = await window.api.downloadSkin(githubUrl)
           if (!downloadResult.success) {
@@ -220,7 +234,7 @@ function App(): React.JSX.Element {
         }
       } else {
         // Handle regular skin
-        skinFileName = `${skin.name}.zip`
+        skinFileName = `${downloadName}.zip`
         const isSkinDownloaded = downloadedSkins.some(
           ds => ds.championName === champion.key && ds.skinName === skinFileName
         )
@@ -228,7 +242,7 @@ function App(): React.JSX.Element {
         if (!isSkinDownloaded) {
           githubUrl = `https://github.com/darkseal-org/lol-skins/blob/main/skins/${champion.key}/${encodeURIComponent(skinFileName)}`
           
-          setStatusMessage(`Downloading ${skin.name}...`)
+          setStatusMessage(t('status.downloading', { name: skin.name }))
           
           const downloadResult = await window.api.downloadSkin(githubUrl)
           if (!downloadResult.success) {
@@ -242,12 +256,12 @@ function App(): React.JSX.Element {
       // Generate skin key for the patcher
       const skinKey = `${champion.key}/${skinFileName}`
       
-      setStatusMessage(`Applying ${skin.name}...`)
+      setStatusMessage(t('status.applying', { name: skin.name }))
       
       // Run patcher with the selected skin
       const patcherResult = await window.api.runPatcher(gamePath, [skinKey])
       if (patcherResult.success) {
-        setStatusMessage(`Applied ${skin.name} successfully!`)
+        setStatusMessage(t('status.applied', { name: skin.name }))
         setIsPatcherRunning(true)
       } else {
         throw new Error(patcherResult.message || 'Failed to apply skin')
@@ -284,7 +298,7 @@ function App(): React.JSX.Element {
   // Get all skins across all champions that match the search
   const getFilteredSkins = () => {
     if (!championData || !skinSearchQuery.trim()) {
-      return selectedChampion?.skins || []
+      return selectedChampion?.skins.filter(skin => skin.num !== 0) || []
     }
 
     const searchLower = skinSearchQuery.toLowerCase()
@@ -292,7 +306,8 @@ function App(): React.JSX.Element {
 
     championData.champions.forEach(champion => {
       champion.skins.forEach(skin => {
-        if (skin.name.toLowerCase().includes(searchLower)) {
+        // Filter out default skins (skin.num === 0)
+        if (skin.num !== 0 && skin.name.toLowerCase().includes(searchLower)) {
           allSkins.push({ champion, skin })
         }
       })
@@ -342,32 +357,30 @@ function App(): React.JSX.Element {
   }
 
   return (
-    <div className="champion-browser">
-      {toolsExist === false && (
+    <>
+      <TitleBar />
+      <div className="champion-browser">
+        {toolsExist === false && (
         <div className="tools-download-modal">
           <div className="modal-content">
-            <h3>CS:LOL Tools Required</h3>
-            <p>The CS:LOL mod tools are required to apply skins. Would you like to download them now?</p>
+            <h3>{t('tools.required')}</h3>
+            <p>{t('tools.description')}</p>
             {downloadingTools ? (
               <div className="download-progress">
-                <p>Downloading tools... {toolsDownloadProgress}%</p>
+                <p>{t('tools.downloading', { progress: toolsDownloadProgress })}</p>
                 <div className="progress-bar">
                   <div className="progress-fill" style={{ width: `${toolsDownloadProgress}%` }}></div>
                 </div>
               </div>
             ) : (
               <button className="btn btn-primary" onClick={downloadTools}>
-                Download Tools
+                {t('tools.downloadTools')}
               </button>
             )}
           </div>
         </div>
       )}
       <div className="browser-header">
-        <div className="browser-title">
-          <h2>CSLOL Skin Launcher</h2>
-          <p>Click on any skin to apply it instantly</p>
-        </div>
         <div className="browser-controls">
           <div className="game-path-mini">
             <input
@@ -382,7 +395,7 @@ function App(): React.JSX.Element {
               onClick={browseForGame}
               disabled={loading}
             >
-              Browse
+              {t('actions.browse')}
             </button>
           </div>
           <button
@@ -390,7 +403,7 @@ function App(): React.JSX.Element {
             onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
             disabled={loading}
           >
-            ❤️ Favorites
+            ❤️ {t('nav.favorites')}
           </button>
           {!championData && (
             <button 
@@ -398,7 +411,7 @@ function App(): React.JSX.Element {
               onClick={fetchChampionData}
               disabled={loading}
             >
-              Download Champion Data
+              {t('champion.downloadData')}
             </button>
           )}
           {championData && (
@@ -407,7 +420,7 @@ function App(): React.JSX.Element {
               onClick={fetchChampionData}
               disabled={loading}
             >
-              Update Data
+              {t('champion.updateData')}
             </button>
           )}
           {isPatcherRunning && (
@@ -416,7 +429,7 @@ function App(): React.JSX.Element {
               onClick={stopPatcher}
               disabled={loading}
             >
-              Stop Patcher
+              {t('actions.stop')} Patcher
             </button>
           )}
         </div>
@@ -534,6 +547,8 @@ function App(): React.JSX.Element {
                     // Show skins for selected champion
                     selectedChampion.skins
                       .filter(skin => {
+                        // Filter out default skins (skin.num === 0)
+                        if (skin.num === 0) return false
                         if (!showFavoritesOnly) return true
                         const key = `${selectedChampion.key}_${skin.id}`
                         return favorites.has(key)
@@ -603,12 +618,21 @@ function App(): React.JSX.Element {
         </div>
       )}
 
-      <div className="status-bar">
-        <div className={`status-message ${loading ? 'loading' : ''}`}>
-          {statusMessage || 'Ready'}
+        <div className="status-bar">
+          <div className={`status-message ${loading ? 'loading' : ''}`}>
+            {statusMessage || t('app.ready')}
+          </div>
         </div>
       </div>
-    </div>
+    </>
+  )
+}
+
+function App(): React.JSX.Element {
+  return (
+    <LocaleProvider>
+      <AppContent />
+    </LocaleProvider>
   )
 }
 

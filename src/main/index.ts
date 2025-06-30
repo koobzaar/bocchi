@@ -8,6 +8,7 @@ import { ModToolsWrapper } from './services/modToolsWrapper'
 import { ChampionDataService } from './services/championDataService'
 import { FavoritesService } from './services/favoritesService'
 import { ToolsDownloader } from './services/toolsDownloader'
+import { SettingsService } from './services/settingsService'
 
 // Initialize services
 const gameDetector = new GameDetector()
@@ -16,6 +17,7 @@ const modToolsWrapper = new ModToolsWrapper()
 const championDataService = new ChampionDataService()
 const favoritesService = new FavoritesService()
 const toolsDownloader = new ToolsDownloader()
+const settingsService = new SettingsService()
 
 function createWindow(): void {
   // Create the browser window.
@@ -23,11 +25,15 @@ function createWindow(): void {
     width: 1200,
     height: 800,
     show: false,
+    frame: false,
+    titleBarStyle: 'hidden',
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      nodeIntegration: false,
+      contextIsolation: true
     }
   })
 
@@ -177,27 +183,35 @@ function setupIpcHandlers(): void {
   })
 
   // Champion data management
-  ipcMain.handle('fetch-champion-data', async () => {
+  ipcMain.handle('fetch-champion-data', async (_, language?: string) => {
     try {
-      const result = await championDataService.fetchAndSaveChampionData()
-      return result
+      // If no language specified, fetch for all supported languages
+      if (!language) {
+        const result = await championDataService.fetchAllLanguages()
+        return result
+      } else {
+        const result = await championDataService.fetchAndSaveChampionData(language)
+        return result
+      }
     } catch (error) {
       return { success: false, message: error instanceof Error ? error.message : 'Unknown error' }
     }
   })
 
-  ipcMain.handle('load-champion-data', async () => {
+  ipcMain.handle('load-champion-data', async (_, language?: string) => {
     try {
-      const data = await championDataService.loadChampionData()
+      const currentLang = language || await settingsService.get('language') || 'en_US'
+      const data = await championDataService.loadChampionData(currentLang)
       return { success: true, data }
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   })
 
-  ipcMain.handle('check-champion-updates', async () => {
+  ipcMain.handle('check-champion-updates', async (_, language?: string) => {
     try {
-      const needsUpdate = await championDataService.checkForUpdates()
+      const currentLang = language || await settingsService.get('language') || 'en_US'
+      const needsUpdate = await championDataService.checkForUpdates(currentLang)
       return { success: true, needsUpdate }
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
@@ -259,5 +273,41 @@ function setupIpcHandlers(): void {
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
+  })
+
+  // Window controls
+  ipcMain.on('window-minimize', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) window.minimize()
+  })
+
+  ipcMain.on('window-maximize', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) {
+      if (window.isMaximized()) {
+        window.unmaximize()
+      } else {
+        window.maximize()
+      }
+    }
+  })
+
+  ipcMain.on('window-close', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) window.close()
+  })
+
+  ipcMain.handle('window-is-maximized', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    return window ? window.isMaximized() : false
+  })
+
+  // Settings management
+  ipcMain.handle('get-settings', async (_, key?: string) => {
+    return settingsService.get(key)
+  })
+
+  ipcMain.handle('set-settings', async (_, key: string, value: any) => {
+    settingsService.set(key, value)
   })
 }

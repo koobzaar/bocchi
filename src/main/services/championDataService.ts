@@ -17,16 +17,18 @@ interface Skin {
   id: string;
   num: number;
   name: string;
+  nameEn?: string; // English name for download purposes
   chromas: boolean;
 }
 
 export class ChampionDataService {
   private dataPath: string;
   private apiVersion: string = '';
+  private supportedLanguages = ['en_US', 'vi_VN'];
 
   constructor() {
     const userData = app.getPath('userData');
-    this.dataPath = path.join(userData, 'champion-data.json');
+    this.dataPath = path.join(userData, 'champion-data');
   }
 
   private async getApiVersion(): Promise<string> {
@@ -34,19 +36,23 @@ export class ChampionDataService {
     return response.data[0];
   }
 
-  private async getChampionDetails(champId: string): Promise<any> {
-    const url = `https://ddragon.leagueoflegends.com/cdn/${this.apiVersion}/data/en_US/champion/${champId}.json`;
+  private async getChampionDetails(champId: string, language: string = 'en_US'): Promise<any> {
+    const url = `https://ddragon.leagueoflegends.com/cdn/${this.apiVersion}/data/${language}/champion/${champId}.json`;
     const response = await axios.get(url);
     return response.data.data[champId];
   }
 
-  public async fetchAndSaveChampionData(): Promise<{ success: boolean; message: string; championCount?: number }> {
+  private getDataPath(language: string): string {
+    return `${this.dataPath}-${language}.json`;
+  }
+
+  public async fetchAndSaveChampionData(language: string = 'en_US'): Promise<{ success: boolean; message: string; championCount?: number }> {
     try {
       // Get latest API version
       this.apiVersion = await this.getApiVersion();
       
-      // Get all champions
-      const championsUrl = `https://ddragon.leagueoflegends.com/cdn/${this.apiVersion}/data/en_US/champion.json`;
+      // Get all champions in the specified language
+      const championsUrl = `https://ddragon.leagueoflegends.com/cdn/${this.apiVersion}/data/${language}/champion.json`;
       const response = await axios.get(championsUrl);
       const championsData = response.data.data;
 
@@ -55,7 +61,20 @@ export class ChampionDataService {
       // Fetch detailed data for each champion
       for (const [champId, champBasicInfo] of Object.entries(championsData)) {
         try {
-          const champDetails = await this.getChampionDetails(champId);
+          const champDetails = await this.getChampionDetails(champId, language);
+          
+          // If we're not fetching English, also get English skin names for download
+          let englishSkinNames: { [key: string]: string } = {};
+          if (language !== 'en_US') {
+            try {
+              const champDetailsEn = await this.getChampionDetails(champId, 'en_US');
+              champDetailsEn.skins.forEach((skin: any) => {
+                englishSkinNames[skin.id] = skin.name;
+              });
+            } catch (error) {
+              console.warn(`Failed to fetch English names for ${champId}`);
+            }
+          }
           
           const champion: Champion = {
             id: parseInt(champBasicInfo.key),
@@ -68,6 +87,7 @@ export class ChampionDataService {
               id: skin.id,
               num: skin.num,
               name: skin.name,
+              nameEn: language !== 'en_US' ? englishSkinNames[skin.id] || skin.name : undefined,
               chromas: skin.chromas || false
             }))
           };
@@ -91,7 +111,7 @@ export class ChampionDataService {
         champions
       };
 
-      await fs.writeFile(this.dataPath, JSON.stringify(data, null, 2));
+      await fs.writeFile(this.getDataPath(language), JSON.stringify(data, null, 2));
 
       return {
         success: true,
@@ -107,24 +127,42 @@ export class ChampionDataService {
     }
   }
 
-  public async loadChampionData(): Promise<{ version: string; champions: Champion[] } | null> {
+  public async loadChampionData(language: string = 'en_US'): Promise<{ version: string; champions: Champion[] } | null> {
     try {
-      const data = await fs.readFile(this.dataPath, 'utf-8');
+      const data = await fs.readFile(this.getDataPath(language), 'utf-8');
       return JSON.parse(data);
     } catch (error) {
       return null;
     }
   }
 
-  public async checkForUpdates(): Promise<boolean> {
+  public async checkForUpdates(language: string = 'en_US'): Promise<boolean> {
     try {
-      const currentData = await this.loadChampionData();
+      const currentData = await this.loadChampionData(language);
       if (!currentData) return true; // No data, needs update
 
       const latestVersion = await this.getApiVersion();
       return currentData.version !== latestVersion;
     } catch (error) {
       return true; // On error, assume update needed
+    }
+  }
+
+  public async fetchAllLanguages(): Promise<{ success: boolean; message: string }> {
+    try {
+      for (const lang of this.supportedLanguages) {
+        console.log(`Fetching champion data for ${lang}...`);
+        await this.fetchAndSaveChampionData(lang);
+      }
+      return {
+        success: true,
+        message: 'Successfully fetched data for all languages'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to fetch data'
+      };
     }
   }
 }

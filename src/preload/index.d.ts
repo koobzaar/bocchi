@@ -10,9 +10,9 @@ export interface IApi {
   runPatcher: (gamePath: string, selectedSkins: string[]) => Promise<{ success: boolean; message?: string }>
   stopPatcher: () => Promise<{ success: boolean; error?: string }>
   isPatcherRunning: () => Promise<boolean>
-  fetchChampionData: () => Promise<{ success: boolean; message: string; championCount?: number }>
-  loadChampionData: () => Promise<{ success: boolean; data?: any; error?: string }>
-  checkChampionUpdates: () => Promise<{ success: boolean; needsUpdate?: boolean; error?: string }>
+  fetchChampionData: (language?: string) => Promise<{ success: boolean; message: string; championCount?: number }>
+  loadChampionData: (language?: string) => Promise<{ success: boolean; data?: any; error?: string }>
+  checkChampionUpdates: (language?: string) => Promise<{ success: boolean; needsUpdate?: boolean; error?: string }>
   
   // Favorites
   addFavorite: (championKey: string, skinId: string, skinName: string) => Promise<{ success: boolean; error?: string }>
@@ -25,6 +25,16 @@ export interface IApi {
   downloadTools: () => Promise<{ success: boolean; error?: string }>
   getToolsInfo: () => Promise<{ success: boolean; downloadUrl?: string; version?: string; error?: string }>
   onToolsDownloadProgress: (callback: (progress: number) => void) => void
+  
+  // Window controls
+  minimizeWindow: () => void
+  maximizeWindow: () => void
+  closeWindow: () => void
+  isWindowMaximized: () => Promise<boolean>
+  
+  // Settings
+  getSettings: (key?: string) => Promise<any>
+  setSettings: (key: string, value: any) => Promise<void>
 }
 
 declare global {

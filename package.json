@@ -25,7 +25,10 @@
     "@electron-toolkit/utils": "^4.0.0",
     "adm-zip": "^0.5.16",
     "axios": "^1.10.0",
-    "electron-updater": "^6.3.9"
+    "electron-updater": "^6.3.9",
+    "i18next": "^25.2.1",
+    "i18next-electron-fs-backend": "^3.0.3",
+    "react-i18next": "^15.5.3"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",
