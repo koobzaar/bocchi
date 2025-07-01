@@ -1,14 +1,15 @@
-import { autoUpdater } from 'electron-updater'
+import { autoUpdater, CancellationToken } from 'electron-updater'
 import { BrowserWindow } from 'electron'
 import axios from 'axios'
 
 export class UpdaterService {
   private mainWindow: BrowserWindow | null = null
   private updateInfo: any = null
+  private cancellationToken: CancellationToken | null = null
 
   constructor() {
     autoUpdater.autoDownload = false
-    autoUpdater.autoInstallOnAppQuit = true
+    autoUpdater.autoRunAppAfterInstall = true
 
     this.setupEventListeners()
   }
@@ -41,6 +42,8 @@ export class UpdaterService {
 
     autoUpdater.on('update-downloaded', () => {
       this.sendToWindow('update-downloaded')
+      // Immediately quit and install
+      autoUpdater.quitAndInstall(true, true)
     })
   }
 
@@ -68,10 +71,18 @@ export class UpdaterService {
 
   async downloadUpdate() {
     try {
-      await autoUpdater.downloadUpdate()
+      this.cancellationToken = new CancellationToken()
+      await autoUpdater.downloadUpdate(this.cancellationToken)
     } catch (error) {
       console.error('Error downloading update:', error)
       throw error
+    }
+  }
+
+  cancelUpdate() {
+    if (this.cancellationToken) {
+      this.cancellationToken.cancel()
+      this.cancellationToken = null
     }
   }
 
